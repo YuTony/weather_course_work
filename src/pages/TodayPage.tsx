@@ -1,61 +1,108 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { Chart, ChartConfiguration } from 'chart.js';
 
 import { IWeather } from "../interfaces/weather";
 
-const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
+type TodayPageProps = {
+  error: null | Object,
+  isLoaded: boolean,
+  items: null | IWeather
+}
 
-export const TodayPage: React.FC = () => {
-  const [error, setError] = useState<null | Object>(null);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [items, setItems] = useState<null | IWeather>(null);
+export const TodayPage: React.FC<TodayPageProps> = (props) => {
+  const chartRef = useRef<HTMLCanvasElement>(null);
+  let items = props.items;
 
   useEffect(() => {
-    // console.log(`https://api.openweathermap.org/data/2.5/onecall?lat=55.76&lon=37.73&exclude=alerts&appid=${API_KEY}&lang=ru`);
-    fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=55.76&lon=37.73&exclude=&appid=${API_KEY}&lang=ru`)
-      .then(res => res.json())
-      .then(
-        (result) => {
-          console.log("ok" + typeof result);
-          setIsLoaded(true);
-          setItems(result);
+    const ctx = chartRef.current;
+    if (ctx && items!.minutely) {
+      const options: ChartConfiguration = {
+        type: 'line',
+        data: {
+          labels: items!.minutely.map(val => {
+            let date = new Date(val.dt * 1000);
+            let hours = date.getHours();
+            let minutes = "0" + date.getMinutes();
+            if (date.getMinutes() % 5 === 0)
+              return `${hours}:${minutes.substr(-2)}`
+            else
+              return ''
+          }),
+          datasets: [{
+            label: 'Осадки на ближайший час',
+            data: items!.minutely.map(val => val.precipitation),
+            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)'
+          }]
         },
-        // Примечание: важно обрабатывать ошибки именно здесь, а не в блоке catch(),
-        // чтобы не перехватывать исключения из ошибок в самих компонентах.
-        (error) => {
-          console.log("error" + typeof error);
-          setIsLoaded(true);
-          setError(error);
+        options: {
+          title: {
+            display: true,
+            fontColor: "white",
+            text: "Осадки на ближайший час"
+          },
+          legend: {
+            display: false
+          },
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true,
+                fontColor: 'white'
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'Осадки, мм',
+                fontColor: 'white'
+              },
+              gridLines: {
+                color: 'white'
+              }
+            }],
+            xAxes: [{
+              ticks: {
+                fontColor: 'white'
+              }, 
+              scaleLabel: {
+                display: true,
+                labelString: 'Время',
+                fontColor: 'white'
+              },
+              gridLines: {
+                color: 'white'
+              }
+            }]
+          }
         }
-      )
-  }, [])
-  // return (
-  //   <p>{JSON.stringify(items)}</p>
-  // )
+      };
+      new Chart(ctx!, options);
+    }
+  })
 
-  if (error) {
-    return <div>Ошибка: {JSON.stringify(error)}</div>;
-  } else if (!isLoaded || items == null) {
+  if (props.error) {
+    return <div>Ошибка: {JSON.stringify(props.error)}</div>;
+  } else if (!props.isLoaded || items == null) {
     return <div>Загрузка...</div>;
   } else {
-    console.log(items);
     return (
       <>
         <div>
-          {/* {JSON.stringify(items?.current)} */}
-          {/* <img src={`http://openweathermap.org/img/wn/${items?.current.weather[0].icon}@2x.png`} alt='test' className='bg-secondary' /> */}
-          <div className='container bg-secondary'>
+          <div className='container bg-secondary mt-2'>
             <div className='row'>
+              <div className='col-sm-2'>
+                {(items!.current.temp - 273).toFixed(1)} °C
+              </div>
               <div className='col-auto'>
                 <img src={`http://openweathermap.org/img/wn/${items?.current.weather[0].icon}@4x.png`} alt='test' />
               </div>
-              <div className='col'>
-                <div>
-                  Температура: {(items!.current.temp*10-273*10)/10} C
-                  <br/>
-                  Скорость ветра: {items?.current.wind_speed} м/с
-                </div>
+              <div className='col-sm-2'>
+                {items?.current.wind_speed} м/с
+              </div>
+              <div className='col-sm-2'>
+                {items?.current.humidity} %
               </div>
             </div>
+            <canvas ref={chartRef}></canvas>
           </div>
         </div>
       </>
