@@ -89,7 +89,7 @@ function App() {
           <NavBar updateGps={updateGps} errorInputFun={errorInputFun} />
         </header>
         <div className="alert alert-warning" style={{ position: 'fixed', display: errorInput ? 'block' : 'none' }} role="alert">
-          Город не ныйден
+          Город не найден
         </div>
         <div className='container page mt-2'>
           <Loading error={error} isLoaded={isLoaded} items={items} />

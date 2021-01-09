@@ -50,11 +50,11 @@ export const NavBar: React.FC<NavBarProps> = ({ updateGps, errorInputFun }) => {
               <Link className="nav-link" to="/7-days">7 дней</Link>
             </li>
           </ul>
+          <form className="d-flex ms-auto ">
+            <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" ref={ref} />
+            <button className="btn btn-outline-success" type="submit" onClick={submit}>Search</button>
+          </form>
         </div>
-        <form className="d-flex">
-          <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" ref={ref} />
-          <button className="btn btn-outline-success" type="submit" onClick={submit}>Search</button>
-        </form>
       </div>
     </nav>
   )
