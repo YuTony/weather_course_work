@@ -1,0 +1,1 @@
+export const colors = { "True Blue": "0466c8", "USAFA Blue": "0353a4", "Dark Cornflower Blue": "023e7d", "Oxford Blue": "002855", "Oxford Blue 2": "001845", "Oxford Blue 3": "001233", "Independence": "33415c", "Black Coral": "5c677d", "Roman Silver": "7d8597", "Manatee": "979dac" }

@@ -1,111 +1,58 @@
-import React, { useEffect, useRef } from 'react';
-import { Chart, ChartConfiguration } from 'chart.js';
+import React from 'react';
 
+import { ChartWeather } from "../components/ChartWeather";
 import { IWeather } from "../interfaces/weather";
 
 type TodayPageProps = {
-  error: null | Object,
-  isLoaded: boolean,
   items: null | IWeather
 }
 
-export const TodayPage: React.FC<TodayPageProps> = (props) => {
-  const chartRef = useRef<HTMLCanvasElement>(null);
-  let items = props.items;
-
-  useEffect(() => {
-    const ctx = chartRef.current;
-    if (ctx && items!.minutely) {
-      const options: ChartConfiguration = {
-        type: 'line',
-        data: {
-          labels: items!.minutely.map(val => {
-            let date = new Date(val.dt * 1000);
-            let hours = date.getHours();
-            let minutes = "0" + date.getMinutes();
-            if (date.getMinutes() % 5 === 0)
-              return `${hours}:${minutes.substr(-2)}`
-            else
-              return ''
-          }),
-          datasets: [{
-            label: 'Осадки на ближайший час',
-            data: items!.minutely.map(val => val.precipitation),
-            borderColor: 'rgba(54, 162, 235, 1)',
-            backgroundColor: 'rgba(54, 162, 235, 0.2)'
-          }]
-        },
-        options: {
-          title: {
-            display: true,
-            fontColor: "white",
-            text: "Осадки на ближайший час"
-          },
-          legend: {
-            display: false
-          },
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true,
-                fontColor: 'white'
-              },
-              scaleLabel: {
-                display: true,
-                labelString: 'Осадки, мм',
-                fontColor: 'white'
-              },
-              gridLines: {
-                color: 'white'
-              }
-            }],
-            xAxes: [{
-              ticks: {
-                fontColor: 'white'
-              }, 
-              scaleLabel: {
-                display: true,
-                labelString: 'Время',
-                fontColor: 'white'
-              },
-              gridLines: {
-                color: 'white'
-              }
-            }]
-          }
-        }
-      };
-      new Chart(ctx!, options);
-    }
-  })
-
-  if (props.error) {
-    return <div>Ошибка: {JSON.stringify(props.error)}</div>;
-  } else if (!props.isLoaded || items == null) {
-    return <div>Загрузка...</div>;
-  } else {
-    return (
-      <>
-        <div>
-          <div className='container bg-secondary mt-2'>
-            <div className='row'>
-              <div className='col-sm-2'>
-                {(items!.current.temp - 273).toFixed(1)} °C
-              </div>
-              <div className='col-auto'>
-                <img src={`http://openweathermap.org/img/wn/${items?.current.weather[0].icon}@4x.png`} alt='test' />
-              </div>
-              <div className='col-sm-2'>
-                {items?.current.wind_speed} м/с
-              </div>
-              <div className='col-sm-2'>
-                {items?.current.humidity} %
-              </div>
-            </div>
-            <canvas ref={chartRef}></canvas>
-          </div>
+export const TodayPage: React.FC<TodayPageProps> = ({ items }) => {
+  return (
+    <>
+      <div className='row text-center'>
+        <div className='col card1'>
+          <div className='temperature-text'>Температура</div>
+          {/* <br /> */}
+          <div className='temperature-val'>{(items!.current.temp - 273).toFixed(1)} °C</div>
         </div>
-      </>
-    )
-  }
+        <div className='col-auto card1'>
+          <img
+            src={`http://openweathermap.org/img/wn/${items!.current.weather[0].icon}@4x.png`}
+            alt='Сдесь была картинка'
+          />
+          <div>{items!.current.weather[0].description.toUpperCase()}</div>
+        </div>
+        <div className='col card1'>
+          <div className='wind_speed-text'>Максимальная скорость ветра</div>
+          <div className='wind_speed-val'>
+            {items!.current.wind_speed} м/с
+                </div>
+        </div>
+        <div className='col card1'>
+          <div className='humidity-text'>Влажность</div>
+          <div className='humidity-val'>
+            {items!.current.humidity} %
+                </div>
+        </div>
+      </div>
+      {
+        'minutely' in items!
+          ? <ChartWeather
+            labels={{
+              title: "Осадки на ближайший час",
+              xLabel: "Время",
+              yLabel: "Осадки, мм",
+            }}
+            opt={{
+              beginAtZero: true,
+              step: 5
+            }}
+            data={items!.minutely.map(val => val.precipitation)}
+            time={items!.minutely.map(val => val.dt)}
+          />
+          : "Ой! Невозможно отобразить минутный прогноз для данного местоположения"
+      }
+    </>
+  )
 }

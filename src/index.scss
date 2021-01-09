@@ -11,6 +11,8 @@
 // @import "../node_modules/bootstrap/scss/containers";
 // @import "../node_modules/bootstrap/scss/grid";
 
+// @import "./colors.scss";
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -20,7 +22,58 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: $gray-700;
   color: $white;
+  padding-top: 60px;
 }
 
+.navbar {
+  background-color: $gray-900;
+}
 
+.page {
+  background-color: $gray-600;
+  color: $gray-900;
+  // align-items: center;
+  // padding: 10px 10px 10px;
+}
 
+.text-center {
+  text-align: center;
+}
+
+.card1 {
+  border-style: solid;
+  border-color: $gray-900;
+  border-radius: 5px;
+  border-width: 3px;
+  background-color: $gray-500;
+  // width: auto;
+  margin: 10px;
+}
+
+.temperature-text {
+  font-size: 25px;
+}
+
+.temperature-val {
+  font-size: 80px;
+}
+
+.wind_speed-text {
+  font-size: 20px;
+}
+
+.wind_speed-val {
+  font-size: 80px;
+}
+
+.humidity-text {
+  font-size: 25px;
+}
+
+.humidity-val {
+  font-size: 80px;
+}
+
+ul {
+  list-style-type: none;
+}
